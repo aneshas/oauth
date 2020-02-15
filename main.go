@@ -155,12 +155,7 @@ func startServer(cfg OauthConfig) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc(cfg.RedirectPath, func(w http.ResponseWriter, r *http.Request) {
-		switch cfg.isImplicit() {
-		case true:
-			handleImplicit(r, cfg)
-		default:
-			handleCode(r, cfg)
-		}
+		handleCode(r, cfg)
 		time.AfterFunc(time.Second, func() {
 			os.Exit(0)
 		})
@@ -190,13 +185,14 @@ func handleCode(r *http.Request, cfg OauthConfig) {
 	code := r.URL.Query().Get("code")
 
 	if code == "" {
-		log.Fatalf("no code present in auth response: %s", r.URL)
+		log.Printf("\nno code present in auth response! response url: %s", r.URL)
+		log.Println("if you are using implicit flow, check the browser url bar for tokens!")
+		return
 	}
 
 	form := url.Values{}
 
 	form.Set("code_verifier", cfg.CodeVerifier)
-
 	form.Set("grant_type", "authorization_code")
 	form.Set("code", code)
 	form.Set("client_id", cfg.ClientID)
@@ -213,20 +209,6 @@ func handleCode(r *http.Request, cfg OauthConfig) {
 
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
 		log.Fatalf("error decoding token response: %v", err)
-	}
-
-	printToken(tokenResp)
-}
-
-func handleImplicit(r *http.Request, cfg OauthConfig) {
-	// TODO - token is actually in the fragment
-	tokenResp := tokenResponse{
-		TokenType:   "Bearer",
-		AccessToken: r.URL.Query().Get("access_token"),
-	}
-
-	if tokenResp.AccessToken == "" {
-		log.Fatalf("no access_token present in auth response: %s", r.URL)
 	}
 
 	printToken(tokenResp)
