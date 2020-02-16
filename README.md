@@ -1,2 +1,2 @@
-#oauth
-Oaut2 code/pkce, implicit authentication cli 
+# oauth
+Oauth2 code/pkce, implicit flow authentication cli 
