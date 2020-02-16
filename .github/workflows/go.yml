@@ -23,8 +23,3 @@ jobs:
     - name: Build
       run: go build -v .
       
-    - name: Release linux
-      uses: yakuhzi/action-release@v1.2.0
-      with:
-        # File to upload to the release
-        file: oauth
