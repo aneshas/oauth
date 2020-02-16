@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -102,7 +104,7 @@ func (o *oauth) handleResponse(r *http.Request) {
 
 	if code == "" {
 		log.Printf("\nno code present in auth response! response url: %s\n", r.URL)
-		log.Println("implicit flow is not supported!")
+		log.Println("implicit flow is not supported atm!")
 		return
 	}
 
@@ -121,7 +123,22 @@ func (o *oauth) printToken(tr tokenResponse) {
 	fmt.Printf("\n%s %s\n\n", tr.TokenType, tr.AccessToken)
 	fmt.Printf("Expires In: %s\n", time.Duration(tr.ExpiresIn)*time.Second)
 
-	// TODO - Decode and print payload
+	fmt.Println("\nClaims:")
+
+	parts := strings.Split(tr.AccessToken, ".")
+	claimBytes, err := base64.StdEncoding.DecodeString(parts[1])
+	if err != nil {
+		log.Fatalf("error decoding claims: %v", err)
+	}
+
+	var buff bytes.Buffer
+
+	err = json.Indent(&buff, claimBytes, "", "  ")
+	if err != nil {
+		log.Fatalf("error decoding claims: %v", err)
+	}
+
+	fmt.Println(buff.String())
 }
 
 func (o *oauth) getTokenFrom(code string) tokenResponse {

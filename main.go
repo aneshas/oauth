@@ -17,7 +17,11 @@ func init() {
 }
 
 func main() {
-	profile := flag.String("profile", "default", "name of .json profile file containing oauth2 configuration.")
+	profile := flag.String(
+		"p",
+		"default",
+		fmt.Sprintf("name of .json profile file containing oauth2 configuration located in %s", configDir),
+	)
 
 	flag.Parse()
 
