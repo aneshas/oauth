@@ -126,7 +126,7 @@ func (o *oauth) printToken(tr tokenResponse) {
 	fmt.Println("\nClaims:")
 
 	parts := strings.Split(tr.AccessToken, ".")
-	claimBytes, err := base64.StdEncoding.DecodeString(parts[1])
+	claimBytes, err := base64.StdEncoding.WithPadding(base64.NoPadding).DecodeString(parts[1])
 	if err != nil {
 		log.Fatalf("error decoding claims: %v", err)
 	}
